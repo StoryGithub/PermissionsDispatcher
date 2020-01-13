@@ -1,55 +1,39 @@
 package permissions.dispatcher.ktx
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri.fromParts
-import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import androidx.fragment.app.Fragment
+import permissions.dispatcher.PermissionUtils
 
-/**
- * This fragment holds the single permission request and holds it until the flow is completed
- */
 class PermissionsRequestFragment : Fragment() {
-    interface PermissionsRequestCallback {
-        fun shouldShowRequestPermissionsRationale()
-        fun onPermissionsGranted()
-        fun onPermissionsPermanentlyDenied()
-        fun onPermissionsDenied()
-    }
+    private var needsPermission: (() -> Unit)? = null
+    private var neverAskAgain: (() -> Unit)? = null
+    private var onPermissionDenied: (() -> Unit)? = null
 
-    companion object {
-        private const val PERMISSIONS_REQUEST_CODE = 199
-
-        @JvmStatic
-        fun newInstance() = PermissionsRequestFragment()
-    }
-
-    private var callback: PermissionsRequestCallback? = null
-
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        if (context is PermissionsRequestCallback) {
-            callback = context
-        } else {
-            throw IllegalArgumentException()
-        }
-    }
-
-    fun requestPermissionsFromUser(permissions: Array<String>) {
-        requestPermissions(permissions, PERMISSIONS_REQUEST_CODE)
+    fun requestPermissions(permissions: Array<out String>,
+                                   needsPermission: () -> Unit,
+                                   neverAskAgain: (() -> Unit)?,
+                                   onPermissionDenied: (() -> Unit)?) {
+        this.needsPermission = needsPermission
+        this.neverAskAgain = neverAskAgain
+        this.onPermissionDenied = onPermissionDenied
+        requestPermissions(permissions, RequestCodeProvider.nextRequestCode(permissions))
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (RequestCodeProvider.nextRequestCode(permissions) > 0) {
+            if (PermissionUtils.verifyPermissions(*grantResults)) {
+                needsPermission?.invoke()
+            } else {
+                if (!PermissionUtils.shouldShowRequestPermissionRationale(this, *permissions)) {
+                    neverAskAgain?.invoke()
+                } else {
+                    onPermissionDenied?.invoke()
+                }
+            }
+        }
     }
 
-    fun openAppSettings() {
-        val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS,
-            fromParts("package", activity?.packageName, null))
-        startActivityForResult(intent, PERMISSIONS_REQUEST_CODE)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+    companion object {
+        fun newInstance() = PermissionsRequestFragment()
     }
 }

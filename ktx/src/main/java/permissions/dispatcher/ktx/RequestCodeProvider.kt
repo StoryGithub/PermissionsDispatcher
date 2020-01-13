@@ -6,13 +6,13 @@ import java.util.concurrent.atomic.AtomicInteger
 
 @AnyThread
 object RequestCodeProvider {
-    private val requestCodeTable: MutableMap<Array<String>, AtomicInteger> = ConcurrentHashMap()
+    private val requestCodeTable: MutableMap<Array<out String>, AtomicInteger> = ConcurrentHashMap()
 
-    fun nextRequestCode(permissions: Array<String>): Int {
-        val code = requestCodeTable.get(key = permissions)
+    fun nextRequestCode(key: Array<out String>): Int {
+        val code = requestCodeTable[key]
         return if (code == null) {
             val newCode = AtomicInteger(0)
-            requestCodeTable[permissions] = newCode
+            requestCodeTable[key] = newCode
             newCode.getAndIncrement()
         } else {
             code.getAndIncrement()
