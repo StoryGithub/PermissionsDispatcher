@@ -3,28 +3,28 @@ package permissions.dispatcher.ktx
 import androidx.fragment.app.Fragment
 import permissions.dispatcher.PermissionUtils
 
-class PermissionsRequestFragment : Fragment() {
-    private var needsPermission: (() -> Unit)? = null
-    private var neverAskAgain: (() -> Unit)? = null
-    private var onPermissionDenied: (() -> Unit)? = null
+internal class PermissionsRequestFragment : Fragment() {
+    private var needsPermission: Func? = null
+    private var neverAskAgain: Func? = null
+    private var onPermissionDenied: Func? = null
 
     fun requestPermissions(permissions: Array<out String>,
-                                   needsPermission: () -> Unit,
-                                   neverAskAgain: (() -> Unit)?,
-                                   onPermissionDenied: (() -> Unit)?) {
+                                   needsPermission: Func,
+                                   neverAskAgain: Func?,
+                                   onPermissionDenied: Func?) {
         this.needsPermission = needsPermission
         this.neverAskAgain = neverAskAgain
         this.onPermissionDenied = onPermissionDenied
-        requestPermissions(permissions, RequestCodeProvider.nextRequestCode(permissions))
+        requestPermissions(permissions, RequestCodeProvider.getAndIncrement(permissions))
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (RequestCodeProvider.nextRequestCode(permissions) > 0) {
+        if (RequestCodeProvider.containsKey(permissions)) {
             if (PermissionUtils.verifyPermissions(*grantResults)) {
                 needsPermission?.invoke()
             } else {
-                if (!PermissionUtils.shouldShowRequestPermissionRationale(this, *permissions)) {
+                if (PermissionUtils.shouldShowRequestPermissionRationale(this, *permissions).not()) {
                     neverAskAgain?.invoke()
                 } else {
                     onPermissionDenied?.invoke()
