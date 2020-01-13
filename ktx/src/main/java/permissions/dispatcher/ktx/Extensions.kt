@@ -7,10 +7,10 @@ import permissions.dispatcher.PermissionUtils
 typealias Func = () -> Unit
 
 fun AppCompatActivity.withPermissionsCheck(vararg permissions: String,
-                                           needsPermission: Func,
+                                           permissionDenied: Func? = null,
                                            showRationale: Func? = null,
                                            neverAskAgain: Func? = null,
-                                           permissionDenied: Func? = null) {
+                                           needsPermission: Func) {
     if (PermissionUtils.hasSelfPermissions(this, *permissions)) {
         needsPermission.invoke()
     } else {
@@ -23,10 +23,10 @@ fun AppCompatActivity.withPermissionsCheck(vararg permissions: String,
 }
 
 fun Fragment.withPermissionsCheck(vararg permissions: String,
-                                  needsPermission: Func,
+                                  permissionDenied: Func? = null,
                                   showRationale: Func? = null,
                                   neverAskAgain: Func? = null,
-                                  permissionDenied: Func? = null) {
+                                  needsPermission: Func) {
     if (PermissionUtils.hasSelfPermissions(this.context, *permissions)) {
         needsPermission.invoke()
     } else {
