@@ -45,9 +45,9 @@ private fun requestPermissions(target: Any,
                                onPermissionDenied: Func?) {
     var fragment = when (target) {
         is AppCompatActivity -> target.supportFragmentManager.findFragmentByTag(
-            PermissionsRequestFragment::class.java.canonicalName) as PermissionsRequestFragment
+            PermissionsRequestFragment::class.java.canonicalName) as? PermissionsRequestFragment
         is Fragment -> target.childFragmentManager.findFragmentByTag(
-            PermissionsRequestFragment::class.java.canonicalName) as PermissionsRequestFragment
+            PermissionsRequestFragment::class.java.canonicalName) as? PermissionsRequestFragment
         else -> null
     }
 

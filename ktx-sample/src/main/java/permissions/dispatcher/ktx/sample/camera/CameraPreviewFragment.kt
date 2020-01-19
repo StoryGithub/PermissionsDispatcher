@@ -1,4 +1,4 @@
-package permissions.dispatcher.sample.camera
+package permissions.dispatcher.ktx.sample.camera
 
 import android.annotation.SuppressLint
 import android.hardware.Camera
@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
-import permissions.dispatcher.sample.R
+import permissions.dispatcher.ktx.sample.R
 
 /**
  * Displays a [CameraPreview] of the first [Camera].

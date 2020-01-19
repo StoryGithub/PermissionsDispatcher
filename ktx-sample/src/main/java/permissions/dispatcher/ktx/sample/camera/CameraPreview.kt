@@ -1,4 +1,4 @@
-package permissions.dispatcher.sample.camera
+package permissions.dispatcher.ktx.sample.camera
 
 import android.annotation.SuppressLint
 import android.content.Context

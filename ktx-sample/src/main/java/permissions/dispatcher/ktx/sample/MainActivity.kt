@@ -1,4 +1,4 @@
-package permissions.dispatcher.sample
+package permissions.dispatcher.ktx.sample
 
 import android.Manifest
 import android.os.Bundle
@@ -6,7 +6,7 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import permissions.dispatcher.ktx.withPermissionsCheck
-import permissions.dispatcher.sample.camera.CameraPreviewFragment
+import permissions.dispatcher.ktx.sample.camera.CameraPreviewFragment
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,8 +35,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onCameraShowRationale() {
+        Toast.makeText(this, "onCameraShowRationale", Toast.LENGTH_SHORT).show()
     }
 
     private fun onCameraNeverAskAgain() {
+        Toast.makeText(this, "onCameraNeverAskAgain", Toast.LENGTH_SHORT).show()
     }
 }

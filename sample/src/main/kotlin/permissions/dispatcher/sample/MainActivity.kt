@@ -8,7 +8,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import permissions.dispatcher.*
-import permissions.dispatcher.sample.camera.CameraPreviewFragment
+import permissions.dispatcher.ktx.sample.camera.CameraPreviewFragment
 import permissions.dispatcher.sample.contacts.ContactsFragment
 
 @RuntimePermissions
