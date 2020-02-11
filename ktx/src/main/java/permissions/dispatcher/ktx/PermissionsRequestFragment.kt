@@ -20,15 +20,13 @@ internal class PermissionsRequestFragment : Fragment() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (RequestCodeProvider.containsKey(permissions)) {
-            if (PermissionUtils.verifyPermissions(*grantResults)) {
-                needsPermission?.invoke()
+        if (PermissionUtils.verifyPermissions(*grantResults)) {
+            needsPermission?.invoke()
+        } else {
+            if (PermissionUtils.shouldShowRequestPermissionRationale(this, *permissions).not()) {
+                neverAskAgain?.invoke()
             } else {
-                if (PermissionUtils.shouldShowRequestPermissionRationale(this, *permissions).not()) {
-                    neverAskAgain?.invoke()
-                } else {
-                    onPermissionDenied?.invoke()
-                }
+                onPermissionDenied?.invoke()
             }
         }
     }

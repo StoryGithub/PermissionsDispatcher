@@ -19,7 +19,7 @@ dependencies {
     implementation "androidx.fragment:fragment:$ANDROIDX_LIBRARY_VERSION"
     implementation "androidx.collection:collection:$ANDROIDX_LIBRARY_VERSION"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"
-    implementation project(':library')
+    api project(':library')
 
     testImplementation "junit:junit:$JUNIT_VERSION"
     testImplementation "org.mockito:mockito-core:$MOCKITO_VERSION"

@@ -3,19 +3,24 @@ package permissions.dispatcher.ktx
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import permissions.dispatcher.PermissionUtils
+import java.lang.ref.WeakReference
 
 typealias Func = () -> Unit
+typealias ShowRationaleFunc = (KtxPermissionRequest) -> Unit
 
 fun AppCompatActivity.withPermissionsCheck(vararg permissions: String,
                                            permissionDenied: Func? = null,
-                                           showRationale: Func? = null,
+                                           showRationale: ShowRationaleFunc? = null,
                                            neverAskAgain: Func? = null,
                                            needsPermission: Func) {
     if (PermissionUtils.hasSelfPermissions(this, *permissions)) {
-        needsPermission.invoke()
+        needsPermission()
     } else {
         if (PermissionUtils.shouldShowRequestPermissionRationale(this, *permissions)) {
-            showRationale?.invoke()
+            val funcReference = if (permissionDenied == null) null else WeakReference(permissionDenied)
+            val request = KtxPermissionRequest(WeakReference(this), permissions,
+                RequestCodeProvider.getAndIncrement(permissions), funcReference)
+            showRationale?.invoke(request)
         } else {
             requestPermissions(this, permissions, needsPermission, neverAskAgain, permissionDenied)
         }
@@ -24,14 +29,17 @@ fun AppCompatActivity.withPermissionsCheck(vararg permissions: String,
 
 fun Fragment.withPermissionsCheck(vararg permissions: String,
                                   permissionDenied: Func? = null,
-                                  showRationale: Func? = null,
+                                  showRationale: ShowRationaleFunc? = null,
                                   neverAskAgain: Func? = null,
                                   needsPermission: Func) {
-    if (PermissionUtils.hasSelfPermissions(this.context, *permissions)) {
-        needsPermission.invoke()
+    if (PermissionUtils.hasSelfPermissions(context, *permissions)) {
+        needsPermission()
     } else {
         if (PermissionUtils.shouldShowRequestPermissionRationale(this, *permissions)) {
-            showRationale?.invoke()
+            val funcReference = if (permissionDenied == null) null else WeakReference(permissionDenied)
+            val request = KtxPermissionRequest(WeakReference(this), permissions,
+                RequestCodeProvider.getAndIncrement(permissions), funcReference)
+            showRationale?.invoke(request)
         } else {
             requestPermissions(this, permissions, needsPermission, neverAskAgain, permissionDenied)
         }

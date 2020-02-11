@@ -9,7 +9,9 @@ import java.util.concurrent.atomic.AtomicInteger
 internal object RequestCodeProvider {
     private val requestCodeTable: ConcurrentMap<Array<out String>, AtomicInteger> = ConcurrentHashMap()
 
-    fun containsKey(key: Array<out String>): Boolean = requestCodeTable.containsKey(key)
+    fun containsKey(key: Array<out String>): Boolean {
+        return requestCodeTable.containsKey(key)
+    }
 
     fun getAndIncrement(key: Array<out String>): Int {
         val code = requestCodeTable[key]
