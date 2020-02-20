@@ -5,26 +5,15 @@ import androidx.fragment.app.Fragment
 import permissions.dispatcher.PermissionUtils
 import java.lang.ref.WeakReference
 
-typealias Func = () -> Unit
+internal typealias Func = () -> Unit
 typealias ShowRationaleFunc = (KtxPermissionRequest) -> Unit
 
 fun AppCompatActivity.withPermissionsCheck(vararg permissions: String,
-                                           permissionDenied: Func? = null,
                                            showRationale: ShowRationaleFunc? = null,
+                                           permissionDenied: Func? = null,
                                            neverAskAgain: Func? = null,
                                            needsPermission: Func) {
-    if (PermissionUtils.hasSelfPermissions(this, *permissions)) {
-        needsPermission()
-    } else {
-        if (PermissionUtils.shouldShowRequestPermissionRationale(this, *permissions)) {
-            val funcReference = if (permissionDenied == null) null else WeakReference(permissionDenied)
-            val request = KtxPermissionRequest(WeakReference(this), permissions,
-                RequestCodeProvider.getAndIncrement(permissions), funcReference)
-            showRationale?.invoke(request)
-        } else {
-            requestPermissions(this, permissions, needsPermission, neverAskAgain, permissionDenied)
-        }
-    }
+    invoke(permissions, this, showRationale, permissionDenied, neverAskAgain, needsPermission)
 }
 
 fun Fragment.withPermissionsCheck(vararg permissions: String,
@@ -32,16 +21,32 @@ fun Fragment.withPermissionsCheck(vararg permissions: String,
                                   showRationale: ShowRationaleFunc? = null,
                                   neverAskAgain: Func? = null,
                                   needsPermission: Func) {
-    if (PermissionUtils.hasSelfPermissions(context, *permissions)) {
+    invoke(permissions, this, showRationale, permissionDenied, neverAskAgain, needsPermission)
+}
+
+private fun invoke(permissions: Array<out String>,
+                   target: Any,
+                   showRationale: ShowRationaleFunc? = null,
+                   permissionDenied: Func? = null,
+                   neverAskAgain: Func? = null,
+                   needsPermission: Func) {
+    val activity = when (target) {
+        is AppCompatActivity -> target
+        is Fragment -> target.activity
+        else -> null
+    } ?: return
+    if (PermissionUtils.hasSelfPermissions(activity, *permissions)) {
         needsPermission()
     } else {
-        if (PermissionUtils.shouldShowRequestPermissionRationale(this, *permissions)) {
-            val funcReference = if (permissionDenied == null) null else WeakReference(permissionDenied)
-            val request = KtxPermissionRequest(WeakReference(this), permissions,
-                RequestCodeProvider.getAndIncrement(permissions), funcReference)
-            showRationale?.invoke(request)
+        if (PermissionUtils.shouldShowRequestPermissionRationale(activity, *permissions)) {
+            val deniedFunc = permissionDenied?.let { WeakReference(it) }
+            val requestPermissionsFunc = WeakReference {
+                requestPermissions(activity, permissions, needsPermission, neverAskAgain,
+                    permissionDenied)
+            }
+            showRationale?.invoke(KtxPermissionRequest(requestPermissionsFunc, deniedFunc))
         } else {
-            requestPermissions(this, permissions, needsPermission, neverAskAgain, permissionDenied)
+            requestPermissions(activity, permissions, needsPermission, neverAskAgain, permissionDenied)
         }
     }
 }
@@ -58,7 +63,6 @@ private fun requestPermissions(target: Any,
             PermissionsRequestFragment::class.java.canonicalName) as? PermissionsRequestFragment
         else -> null
     }
-
     if (fragment == null) {
         fragment = PermissionsRequestFragment.newInstance()
         when (target) {
