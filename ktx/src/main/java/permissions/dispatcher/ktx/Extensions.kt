@@ -1,5 +1,6 @@
 package permissions.dispatcher.ktx
 
+import android.Manifest
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import permissions.dispatcher.PermissionRequest
@@ -12,7 +13,12 @@ fun AppCompatActivity.withPermissionsCheck(vararg permissions: String,
                                            permissionDenied: Func? = null,
                                            neverAskAgain: Func? = null,
                                            needsPermission: Func) {
-    invoke(permissions, this, showRationale, permissionDenied, neverAskAgain, needsPermission)
+    if (permissions.size == 1 && (permissions.first() == Manifest.permission.WRITE_SETTINGS ||
+            permissions.first() == Manifest.permission.SYSTEM_ALERT_WINDOW)) {
+        invokeSpecial(permissions, this, showRationale, permissionDenied, neverAskAgain, needsPermission)
+    } else {
+        invoke(permissions, this, showRationale, permissionDenied, neverAskAgain, needsPermission)
+    }
 }
 
 fun Fragment.withPermissionsCheck(vararg permissions: String,
@@ -20,5 +26,10 @@ fun Fragment.withPermissionsCheck(vararg permissions: String,
                                   showRationale: ShowRationaleFunc? = null,
                                   neverAskAgain: Func? = null,
                                   needsPermission: Func) {
-    invoke(permissions, this, showRationale, permissionDenied, neverAskAgain, needsPermission)
+    if (permissions.size == 1 && (permissions.first() == Manifest.permission.WRITE_SETTINGS ||
+            permissions.first() == Manifest.permission.SYSTEM_ALERT_WINDOW)) {
+        invokeSpecial(permissions, this, showRationale, permissionDenied, neverAskAgain, needsPermission)
+    } else {
+        invoke(permissions, this, showRationale, permissionDenied, neverAskAgain, needsPermission)
+    }
 }

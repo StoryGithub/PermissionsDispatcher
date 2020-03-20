@@ -8,6 +8,8 @@ import java.util.concurrent.atomic.AtomicInteger
 internal object RequestCodeProvider {
     private val requestCodeTable = ConcurrentHashMap<Array<out String>, AtomicInteger>()
 
+    fun get(key: Array<out String>): Int? = requestCodeTable[key]?.get()
+
     fun getAndIncrement(key: Array<out String>): Int {
         val code = requestCodeTable[key]
         return if (code == null) {

@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import permissions.dispatcher.ktx.KtxPermissionRequest
+import permissions.dispatcher.PermissionRequest
 import permissions.dispatcher.ktx.withPermissionsCheck
 import permissions.dispatcher.ktx.sample.camera.CameraPreviewFragment
 
@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, R.string.permission_camera_denied, Toast.LENGTH_SHORT).show()
     }
 
-    private fun onCameraShowRationale(request: KtxPermissionRequest) {
+    private fun onCameraShowRationale(request: PermissionRequest) {
         request.proceed()
         Toast.makeText(this, "onCameraShowRationale", Toast.LENGTH_SHORT).show()
     }

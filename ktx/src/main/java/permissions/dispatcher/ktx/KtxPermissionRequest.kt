@@ -3,7 +3,7 @@ package permissions.dispatcher.ktx
 import permissions.dispatcher.PermissionRequest
 import java.lang.ref.WeakReference
 
-class KtxPermissionRequest(
+internal class KtxPermissionRequest(
     private val requestPermission: WeakReference<Func>,
     private val permissionDenied: WeakReference<Func>?
 ) : PermissionRequest {

@@ -47,15 +47,13 @@ internal fun requestPermissions(target: Any,
         val newFragment = PermissionsRequestFragment.newInstance()
         when (target) {
             is AppCompatActivity ->
-                target.supportFragmentManager.beginTransaction().apply {
-                    add(newFragment, PermissionsRequestFragment.tag)
-                    commitNow()
-                }
+                target.supportFragmentManager.beginTransaction()
+                    .add(newFragment, PermissionsRequestFragment.tag)
+                    .commitNow()
             is Fragment ->
-                target.childFragmentManager.beginTransaction().apply {
-                    add(newFragment, PermissionsRequestFragment.tag)
-                    commitNow()
-                }
+                target.childFragmentManager.beginTransaction()
+                    .add(newFragment, PermissionsRequestFragment.tag)
+                    .commitNow()
         }
     }
 }
