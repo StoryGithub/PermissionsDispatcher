@@ -31,7 +31,8 @@ internal class PermissionsRequestFragment : Fragment() {
         }
     }
 
-    companion object {
+    internal companion object {
+        val tag = PermissionsRequestFragment::class.java.canonicalName
         fun newInstance() = PermissionsRequestFragment()
     }
 }

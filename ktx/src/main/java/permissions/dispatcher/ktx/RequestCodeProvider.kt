@@ -2,16 +2,11 @@ package permissions.dispatcher.ktx
 
 import androidx.annotation.AnyThread
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.atomic.AtomicInteger
 
 @AnyThread
 internal object RequestCodeProvider {
-    private val requestCodeTable: ConcurrentMap<Array<out String>, AtomicInteger> = ConcurrentHashMap()
-
-    fun containsKey(key: Array<out String>): Boolean {
-        return requestCodeTable.containsKey(key)
-    }
+    private val requestCodeTable = ConcurrentHashMap<Array<out String>, AtomicInteger>()
 
     fun getAndIncrement(key: Array<out String>): Int {
         val code = requestCodeTable[key]

@@ -14,4 +14,12 @@ class KtxPermissionRequest(
     override fun cancel() {
         permissionDenied?.get()?.invoke()
     }
+
+    internal companion object {
+        fun create(permissionDenied: Func?, requestPermission: Func): PermissionRequest =
+            KtxPermissionRequest(
+                requestPermission = WeakReference(requestPermission),
+                permissionDenied = permissionDenied?.let { WeakReference(it) }
+            )
+    }
 }
