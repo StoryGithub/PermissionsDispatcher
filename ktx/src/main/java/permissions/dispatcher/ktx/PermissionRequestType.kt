@@ -20,7 +20,12 @@ internal sealed class PermissionRequestType {
                                    requiresPermission: Func,
                                    onNeverAskAgain: Func?,
                                    onPermissionDenied: Func?) =
-            fragment.requestOverlayPermission(permissions, requiresPermission, onNeverAskAgain, onPermissionDenied)
+            fragment.requestOverlayPermission(
+                permissions = permissions,
+                requiresPermission = requiresPermission,
+                onNeverAskAgain = onNeverAskAgain,
+                onPermissionDenied = onPermissionDenied
+            )
     }
 
     object WriteSettings : PermissionRequestType() {
@@ -33,7 +38,12 @@ internal sealed class PermissionRequestType {
                                    requiresPermission: Func,
                                    onNeverAskAgain: Func?,
                                    onPermissionDenied: Func?) =
-            fragment.requestWriteSettingsPermission(permissions, requiresPermission, onNeverAskAgain, onPermissionDenied)
+            fragment.requestWriteSettingsPermission(
+                permissions = permissions,
+                requiresPermission = requiresPermission,
+                onNeverAskAgain = onNeverAskAgain,
+                onPermissionDenied = onPermissionDenied
+            )
     }
 
     object Others : PermissionRequestType() {
@@ -45,7 +55,12 @@ internal sealed class PermissionRequestType {
                                    requiresPermission: Func,
                                    onNeverAskAgain: Func?,
                                    onPermissionDenied: Func?) =
-            fragment.requestPermissions(permissions, requiresPermission, onNeverAskAgain, onPermissionDenied)
+            fragment.requestPermissions(
+                permissions = permissions,
+                requiresPermission = requiresPermission,
+                onNeverAskAgain = onNeverAskAgain,
+                onPermissionDenied = onPermissionDenied
+            )
     }
 
     abstract fun checkPermissions(context: Context, permissions: Array<out String>): Boolean
@@ -70,7 +85,13 @@ internal sealed class PermissionRequestType {
             target.supportFragmentManager.beginTransaction()
                 .add(newFragment, PermissionsRequestFragment.tag)
                 .commitNow()
-            invokeRequest(newFragment, permissions, requiresPermission, onNeverAskAgain, onPermissionDenied)
+            invokeRequest(
+                fragment = newFragment,
+                permissions = permissions,
+                requiresPermission = requiresPermission,
+                onNeverAskAgain = onNeverAskAgain,
+                onPermissionDenied = onPermissionDenied
+            )
         }
     }
 

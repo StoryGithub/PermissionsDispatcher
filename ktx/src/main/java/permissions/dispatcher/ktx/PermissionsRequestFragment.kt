@@ -53,9 +53,7 @@ internal class PermissionsRequestFragment : Fragment() {
         this.requiresPermission = requiresPermission
         this.onNeverAskAgain = onNeverAskAgain
         this.onPermissionDenied = onPermissionDenied
-        val uri = Uri.parse("package:${requireContext().packageName}")
-        val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, uri)
-        startActivityForResult(intent, RequestCodeProvider.getAndIncrement(permissions))
+        requestSpecialPermissions(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, permissions)
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -67,8 +65,12 @@ internal class PermissionsRequestFragment : Fragment() {
         this.requiresPermission = requiresPermission
         this.onNeverAskAgain = onNeverAskAgain
         this.onPermissionDenied = onPermissionDenied
+        requestSpecialPermissions(Settings.ACTION_MANAGE_WRITE_SETTINGS, permissions)
+    }
+
+    private fun requestSpecialPermissions(action: String, permissions: Array<out String>) {
         val uri = Uri.parse("package:${requireContext().packageName}")
-        val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, uri)
+        val intent = Intent(action, uri)
         startActivityForResult(intent, RequestCodeProvider.getAndIncrement(permissions))
     }
 
