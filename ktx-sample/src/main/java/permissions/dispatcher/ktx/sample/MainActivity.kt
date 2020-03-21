@@ -19,10 +19,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showCamera() = withPermissionsCheck(Manifest.permission.CAMERA,
-        showRationale = ::onCameraShowRationale,
-        permissionDenied = ::onCameraDenied,
-        neverAskAgain = ::onCameraNeverAskAgain) {
+    private fun showCamera() = withPermissionsCheck(
+        Manifest.permission.CAMERA,
+        onShowRationale = ::onCameraShowRationale,
+        onPermissionDenied = ::onCameraDenied,
+        onNeverAskAgain = ::onCameraNeverAskAgain) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.sample_content_fragment, CameraPreviewFragment.newInstance())
             .addToBackStack("camera")
@@ -30,8 +31,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onCameraDenied() {
-        // NOTE: Deal with a denied permission, e.g. by showing specific UI
-        // or disabling certain functionality
         Toast.makeText(this, R.string.permission_camera_denied, Toast.LENGTH_SHORT).show()
     }
 

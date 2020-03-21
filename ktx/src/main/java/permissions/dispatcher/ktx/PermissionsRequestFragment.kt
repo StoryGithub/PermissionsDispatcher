@@ -6,11 +6,11 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.DialogFragment
 import permissions.dispatcher.PermissionUtils
 import permissions.dispatcher.PermissionUtils.verifyPermissions
 
-internal class PermissionsRequestFragment : Fragment() {
+internal class PermissionsRequestFragment : DialogFragment() {
     private var permissions: Array<out String>? = null
     private var requiresPermission: Func? = null
     private var onNeverAskAgain: Func? = null
@@ -21,10 +21,8 @@ internal class PermissionsRequestFragment : Fragment() {
         retainInstance = true
     }
 
-    fun requestPermissions(permissions: Array<out String>,
-                           requiresPermission: Func,
-                           onNeverAskAgain: Func?,
-                           onPermissionDenied: Func?) {
+    fun requestPermissions(permissions: Array<out String>, requiresPermission: Func,
+                           onNeverAskAgain: Func?, onPermissionDenied: Func?) {
         this.requiresPermission = requiresPermission
         this.onNeverAskAgain = onNeverAskAgain
         this.onPermissionDenied = onPermissionDenied
@@ -41,7 +39,7 @@ internal class PermissionsRequestFragment : Fragment() {
                 onPermissionDenied?.invoke()
             }
         }
-        activity?.supportFragmentManager?.popBackStack()
+        dismiss()
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -84,7 +82,7 @@ internal class PermissionsRequestFragment : Fragment() {
                     onPermissionDenied?.invoke()
                 }
         }
-        activity?.supportFragmentManager?.popBackStack()
+        dismiss()
     }
 
     companion object {

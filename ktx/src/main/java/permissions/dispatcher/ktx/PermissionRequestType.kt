@@ -79,12 +79,15 @@ internal sealed class PermissionRequestType {
         val fragment = target.supportFragmentManager
             .findFragmentByTag(PermissionsRequestFragment.tag) as? PermissionsRequestFragment
         if (fragment != null) {
-            invokeRequest(fragment, permissions, requiresPermission, onNeverAskAgain, onPermissionDenied)
+            invokeRequest(
+                fragment = fragment,
+                permissions = permissions,
+                requiresPermission = requiresPermission,
+                onNeverAskAgain = onNeverAskAgain,
+                onPermissionDenied = onPermissionDenied)
         } else {
             val newFragment = PermissionsRequestFragment.newInstance()
-            target.supportFragmentManager.beginTransaction()
-                .add(newFragment, PermissionsRequestFragment.tag)
-                .commitNow()
+            newFragment.showNow(target.supportFragmentManager, PermissionsRequestFragment.tag)
             invokeRequest(
                 fragment = newFragment,
                 permissions = permissions,
@@ -128,7 +131,7 @@ internal sealed class PermissionRequestType {
 
     companion object {
         fun from(permissions: Array<out String>): PermissionRequestType {
-            return if (permissions.size > 1) {
+            return if (permissions.size == 1) {
                 when (permissions.first()) {
                     Manifest.permission.SYSTEM_ALERT_WINDOW -> SystemAlertWindow
                     Manifest.permission.WRITE_SETTINGS -> WriteSettings
