@@ -1,45 +1,17 @@
 package permissions.dispatcher.ktx.sample
 
-import android.Manifest
 import android.os.Bundle
-import android.widget.Button
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import permissions.dispatcher.PermissionRequest
-import permissions.dispatcher.ktx.withPermissionsCheck
-import permissions.dispatcher.ktx.sample.camera.CameraPreviewFragment
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        val buttonCamera: Button = findViewById(R.id.button_camera)
-        buttonCamera.setOnClickListener {
-            showCamera()
+        setContentView(R.layout.activity_main2)
+        if (savedInstanceState == null) {
+            val fragment = MainFragment()
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.container, fragment)
+                .commitNowAllowingStateLoss()
         }
-    }
-
-    private fun showCamera() = withPermissionsCheck(
-        Manifest.permission.CAMERA,
-        onShowRationale = ::onCameraShowRationale,
-        onPermissionDenied = ::onCameraDenied,
-        onNeverAskAgain = ::onCameraNeverAskAgain) {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.sample_content_fragment, CameraPreviewFragment.newInstance())
-            .addToBackStack("camera")
-            .commitAllowingStateLoss()
-    }
-
-    private fun onCameraDenied() {
-        Toast.makeText(this, R.string.permission_camera_denied, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun onCameraShowRationale(request: PermissionRequest) {
-        request.proceed()
-        Toast.makeText(this, "onCameraShowRationale", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun onCameraNeverAskAgain() {
-        Toast.makeText(this, "onCameraNeverAskAgain", Toast.LENGTH_SHORT).show()
     }
 }

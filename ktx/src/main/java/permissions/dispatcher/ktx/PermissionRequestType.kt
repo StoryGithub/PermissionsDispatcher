@@ -10,6 +10,23 @@ import permissions.dispatcher.PermissionUtils.hasSelfPermissions
 import permissions.dispatcher.PermissionUtils.shouldShowRequestPermissionRationale
 
 internal sealed class PermissionRequestType {
+    object Others : PermissionRequestType() {
+        override fun checkPermissions(context: Context, permissions: Array<out String>): Boolean =
+            hasSelfPermissions(context, *permissions)
+
+        override fun invokeRequest(fragment: PermissionsRequestFragment,
+                                   permissions: Array<out String>,
+                                   requiresPermission: Func,
+                                   onNeverAskAgain: Func?,
+                                   onPermissionDenied: Func?) =
+            fragment.requestPermissions(
+                permissions = permissions,
+                requiresPermission = requiresPermission,
+                onNeverAskAgain = onNeverAskAgain,
+                onPermissionDenied = onPermissionDenied
+            )
+    }
+
     object SystemAlertWindow : PermissionRequestType() {
         override fun checkPermissions(context: Context, permissions: Array<out String>): Boolean =
             Build.VERSION.SDK_INT < 23 || Settings.canDrawOverlays(context)
@@ -46,23 +63,6 @@ internal sealed class PermissionRequestType {
             )
     }
 
-    object Others : PermissionRequestType() {
-        override fun checkPermissions(context: Context, permissions: Array<out String>): Boolean =
-            hasSelfPermissions(context, *permissions)
-
-        override fun invokeRequest(fragment: PermissionsRequestFragment,
-                                   permissions: Array<out String>,
-                                   requiresPermission: Func,
-                                   onNeverAskAgain: Func?,
-                                   onPermissionDenied: Func?) =
-            fragment.requestPermissions(
-                permissions = permissions,
-                requiresPermission = requiresPermission,
-                onNeverAskAgain = onNeverAskAgain,
-                onPermissionDenied = onPermissionDenied
-            )
-    }
-
     abstract fun checkPermissions(context: Context, permissions: Array<out String>): Boolean
 
     abstract fun invokeRequest(fragment: PermissionsRequestFragment,
@@ -87,7 +87,9 @@ internal sealed class PermissionRequestType {
                 onPermissionDenied = onPermissionDenied)
         } else {
             val newFragment = PermissionsRequestFragment.newInstance()
-            newFragment.showNow(target.supportFragmentManager, PermissionsRequestFragment.tag)
+            target.supportFragmentManager.beginTransaction()
+                .add(newFragment, PermissionsRequestFragment.tag)
+                .commitNowAllowingStateLoss()
             invokeRequest(
                 fragment = newFragment,
                 permissions = permissions,
