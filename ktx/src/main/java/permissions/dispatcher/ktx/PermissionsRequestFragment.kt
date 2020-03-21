@@ -31,7 +31,6 @@ internal class PermissionsRequestFragment : Fragment() {
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (PermissionUtils.verifyPermissions(*grantResults)) {
             needsPermission?.invoke()
         } else {
@@ -41,6 +40,7 @@ internal class PermissionsRequestFragment : Fragment() {
                 onPermissionDenied?.invoke()
             }
         }
+        activity?.supportFragmentManager?.popBackStack()
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -57,8 +57,21 @@ internal class PermissionsRequestFragment : Fragment() {
         startActivityForResult(intent, RequestCodeProvider.getAndIncrement(permissions))
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun requestWriteSettingsPermission(permissions: Array<out String>,
+                                       needsPermission: Func,
+                                       neverAskAgain: Func?,
+                                       onPermissionDenied: Func?) {
+        this.permissions = permissions
+        this.needsPermission = needsPermission
+        this.neverAskAgain = neverAskAgain
+        this.onPermissionDenied = onPermissionDenied
+        val uri = Uri.parse("package:${requireContext().packageName}")
+        val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, uri)
+        startActivityForResult(intent, RequestCodeProvider.getAndIncrement(permissions))
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
         val permissions = permissions ?: return
         when (requestCode) {
             RequestCodeProvider.get(permissions) ->
@@ -68,10 +81,12 @@ internal class PermissionsRequestFragment : Fragment() {
                     onPermissionDenied?.invoke()
                 }
         }
+        activity?.supportFragmentManager?.popBackStack()
     }
 
     internal companion object {
         val tag = PermissionsRequestFragment::class.java.canonicalName
+
         fun newInstance() = PermissionsRequestFragment()
     }
 }
