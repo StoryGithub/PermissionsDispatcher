@@ -1,36 +1,32 @@
 package permissions.dispatcher.ktx
 
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import permissions.dispatcher.PermissionRequest
+import androidx.fragment.app.FragmentActivity
 
-internal typealias Func = () -> Unit
-internal typealias ShowRationaleFunc = (PermissionRequest) -> Unit
-
-fun AppCompatActivity.withPermissionsCheck(vararg permissions: String,
-                                           showRationale: ShowRationaleFunc? = null,
-                                           permissionDenied: Func? = null,
-                                           neverAskAgain: Func? = null,
-                                           needsPermission: Func) {
-    PermissionRequestType.create(permissions).invoke(
-        permissions,
-        this,
-        showRationale,
-        permissionDenied,
-        neverAskAgain,
-        needsPermission)
+fun FragmentActivity.withPermissionsCheck(vararg permissions: String,
+                                  onShowRationale: ShowRationaleFunc? = null,
+                                  onPermissionDenied: Func? = null,
+                                  onNeverAskAgain: Func? = null,
+                                  requiresPermission: Func) {
+    PermissionRequestType.from(permissions).invoke(
+        permissions = permissions,
+        activity = this,
+        onShowRationale = onShowRationale,
+        onPermissionDenied = onPermissionDenied,
+        onNeverAskAgain = onNeverAskAgain,
+        requiresPermission = requiresPermission)
 }
 
 fun Fragment.withPermissionsCheck(vararg permissions: String,
-                                  permissionDenied: Func? = null,
-                                  showRationale: ShowRationaleFunc? = null,
-                                  neverAskAgain: Func? = null,
-                                  needsPermission: Func) {
-    PermissionRequestType.create(permissions).invoke(
-        permissions,
-        this,
-        showRationale,
-        permissionDenied,
-        neverAskAgain,
-        needsPermission)
+                                  onShowRationale: ShowRationaleFunc? = null,
+                                  onPermissionDenied: Func? = null,
+                                  onNeverAskAgain: Func? = null,
+                                  requiresPermission: Func) {
+    PermissionRequestType.from(permissions).invoke(
+        permissions = permissions,
+        activity = requireActivity(),
+        onShowRationale = onShowRationale,
+        onPermissionDenied = onPermissionDenied,
+        onNeverAskAgain = onNeverAskAgain,
+        requiresPermission = requiresPermission)
 }

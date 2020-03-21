@@ -5,114 +5,109 @@ import android.content.Context
 import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import permissions.dispatcher.PermissionUtils.hasSelfPermissions
 import permissions.dispatcher.PermissionUtils.shouldShowRequestPermissionRationale
 
 internal sealed class PermissionRequestType {
     object SystemAlertWindow : PermissionRequestType() {
-        override fun checkSelfPermission(context: Context, permissions: Array<out String>): Boolean =
+        override fun checkPermissions(context: Context, permissions: Array<out String>): Boolean =
             Build.VERSION.SDK_INT < 23 || Settings.canDrawOverlays(context)
 
         @RequiresApi(Build.VERSION_CODES.M)
-        override fun requestDelegate(fragment: PermissionsRequestFragment,
-                                     permissions: Array<out String>,
-                                     needsPermission: Func,
-                                     neverAskAgain: Func?,
-                                     onPermissionDenied: Func?) =
-            fragment.requestOverlayPermission(permissions, needsPermission, neverAskAgain, onPermissionDenied)
+        override fun invokeRequest(fragment: PermissionsRequestFragment,
+                                   permissions: Array<out String>,
+                                   requiresPermission: Func,
+                                   onNeverAskAgain: Func?,
+                                   onPermissionDenied: Func?) =
+            fragment.requestOverlayPermission(permissions, requiresPermission, onNeverAskAgain, onPermissionDenied)
     }
 
     object WriteSettings : PermissionRequestType() {
-        override fun checkSelfPermission(context: Context, permissions: Array<out String>): Boolean =
+        override fun checkPermissions(context: Context, permissions: Array<out String>): Boolean =
             Build.VERSION.SDK_INT < 23 || Settings.System.canWrite(context)
 
         @RequiresApi(Build.VERSION_CODES.M)
-        override fun requestDelegate(fragment: PermissionsRequestFragment,
-                                     permissions: Array<out String>,
-                                     needsPermission: Func,
-                                     neverAskAgain: Func?,
-                                     onPermissionDenied: Func?) =
-            fragment.requestWriteSettingsPermission(permissions, needsPermission, neverAskAgain, onPermissionDenied)
+        override fun invokeRequest(fragment: PermissionsRequestFragment,
+                                   permissions: Array<out String>,
+                                   requiresPermission: Func,
+                                   onNeverAskAgain: Func?,
+                                   onPermissionDenied: Func?) =
+            fragment.requestWriteSettingsPermission(permissions, requiresPermission, onNeverAskAgain, onPermissionDenied)
     }
 
     object Others : PermissionRequestType() {
-        override fun checkSelfPermission(context: Context, permissions: Array<out String>): Boolean =
+        override fun checkPermissions(context: Context, permissions: Array<out String>): Boolean =
             hasSelfPermissions(context, *permissions)
 
-        override fun requestDelegate(fragment: PermissionsRequestFragment,
-                                     permissions: Array<out String>,
-                                     needsPermission: Func,
-                                     neverAskAgain: Func?,
-                                     onPermissionDenied: Func?) =
-            fragment.requestPermissions(permissions, needsPermission, neverAskAgain, onPermissionDenied)
+        override fun invokeRequest(fragment: PermissionsRequestFragment,
+                                   permissions: Array<out String>,
+                                   requiresPermission: Func,
+                                   onNeverAskAgain: Func?,
+                                   onPermissionDenied: Func?) =
+            fragment.requestPermissions(permissions, requiresPermission, onNeverAskAgain, onPermissionDenied)
     }
 
-    abstract fun checkSelfPermission(context: Context, permissions: Array<out String>): Boolean
+    abstract fun checkPermissions(context: Context, permissions: Array<out String>): Boolean
 
-    abstract fun requestDelegate(fragment: PermissionsRequestFragment,
-                                 permissions: Array<out String>,
-                                 needsPermission: Func,
-                                 neverAskAgain: Func?,
-                                 onPermissionDenied: Func?)
+    abstract fun invokeRequest(fragment: PermissionsRequestFragment,
+                               permissions: Array<out String>,
+                               requiresPermission: Func,
+                               onNeverAskAgain: Func?,
+                               onPermissionDenied: Func?)
 
     private fun requestPermissions(permissions: Array<out String>,
-                                   target: Any,
-                                   needsPermission: Func,
-                                   neverAskAgain: Func?,
+                                   target: FragmentActivity,
+                                   requiresPermission: Func,
+                                   onNeverAskAgain: Func?,
                                    onPermissionDenied: Func?) {
-        val fragment = when (target) {
-            is AppCompatActivity -> target.supportFragmentManager.findFragmentByTag(
-                PermissionsRequestFragment.tag) as? PermissionsRequestFragment
-            is Fragment -> target.childFragmentManager.findFragmentByTag(
-                PermissionsRequestFragment.tag) as? PermissionsRequestFragment
-            else -> null
-        }
+        val fragment = target.supportFragmentManager
+            .findFragmentByTag(PermissionsRequestFragment.tag) as? PermissionsRequestFragment
         if (fragment != null) {
-            requestDelegate(fragment, permissions, needsPermission, neverAskAgain, onPermissionDenied)
+            invokeRequest(fragment, permissions, requiresPermission, onNeverAskAgain, onPermissionDenied)
         } else {
             val newFragment = PermissionsRequestFragment.newInstance()
-            when (target) {
-                is AppCompatActivity ->
-                    target.supportFragmentManager.beginTransaction()
-                        .add(newFragment, PermissionsRequestFragment.tag)
-                        .commitNow()
-                is Fragment ->
-                    target.childFragmentManager.beginTransaction()
-                        .add(newFragment, PermissionsRequestFragment.tag)
-                        .commitNow()
-            }
+            target.supportFragmentManager.beginTransaction()
+                .add(newFragment, PermissionsRequestFragment.tag)
+                .commitNow()
+            invokeRequest(newFragment, permissions, requiresPermission, onNeverAskAgain, onPermissionDenied)
         }
     }
 
     fun invoke(permissions: Array<out String>,
-               target: Any,
-               showRationale: ShowRationaleFunc?,
-               permissionDenied: Func?,
-               neverAskAgain: Func?,
-               needsPermission: Func) {
-        val activity = when (target) {
-            is AppCompatActivity -> target
-            is Fragment -> target.activity
-            else -> null
-        } ?: return
-        if (checkSelfPermission(activity, permissions)) {
-            needsPermission()
+               activity: FragmentActivity,
+               onShowRationale: ShowRationaleFunc?,
+               onPermissionDenied: Func?,
+               onNeverAskAgain: Func?,
+               requiresPermission: Func) {
+        if (checkPermissions(activity, permissions)) {
+            requiresPermission()
         } else {
             if (shouldShowRequestPermissionRationale(activity, *permissions)) {
-                showRationale?.invoke(KtxPermissionRequest.create(permissionDenied) {
-                    requestPermissions(permissions, activity, needsPermission, neverAskAgain, permissionDenied)
+                onShowRationale?.invoke(KtxPermissionRequest.create(onPermissionDenied) {
+                    requestPermissions(
+                        permissions = permissions,
+                        target = activity,
+                        requiresPermission = requiresPermission,
+                        onNeverAskAgain = onNeverAskAgain,
+                        onPermissionDenied = onPermissionDenied
+                    )
                 })
             } else {
-                requestPermissions(permissions, activity, needsPermission, neverAskAgain, permissionDenied)
+                requestPermissions(
+                    permissions = permissions,
+                    target = activity,
+                    requiresPermission = requiresPermission,
+                    onNeverAskAgain = onNeverAskAgain,
+                    onPermissionDenied = onPermissionDenied
+                )
             }
         }
     }
 
     companion object {
-        fun create(permissions: Array<out String>): PermissionRequestType {
-            return if (permissions.size == 1) {
+        fun from(permissions: Array<out String>): PermissionRequestType {
+            return if (permissions.size > 1) {
                 when (permissions.first()) {
                     Manifest.permission.SYSTEM_ALERT_WINDOW -> SystemAlertWindow
                     Manifest.permission.WRITE_SETTINGS -> WriteSettings
