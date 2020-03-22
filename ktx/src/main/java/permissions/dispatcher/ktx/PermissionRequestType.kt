@@ -37,7 +37,6 @@ internal sealed class PermissionRequestType {
                                    onNeverAskAgain: Func?,
                                    onPermissionDenied: Func?) =
             fragment.requestOverlayPermission(
-                permissions = permissions,
                 requiresPermission = requiresPermission,
                 onPermissionDenied = onPermissionDenied
             )
@@ -54,7 +53,6 @@ internal sealed class PermissionRequestType {
                                    onNeverAskAgain: Func?,
                                    onPermissionDenied: Func?) =
             fragment.requestWriteSettingsPermission(
-                permissions = permissions,
                 requiresPermission = requiresPermission,
                 onPermissionDenied = onPermissionDenied
             )
