@@ -66,7 +66,7 @@ internal sealed class PermissionRequestType {
                                onNeverAskAgain: Func?,
                                onPermissionDenied: Func?)
 
-    private fun requestPermissions(permissions: Array<out String>,
+    internal fun requestPermissions(permissions: Array<out String>,
                                    target: FragmentActivity,
                                    requiresPermission: Func,
                                    onNeverAskAgain: Func?,

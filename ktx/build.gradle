@@ -22,7 +22,6 @@ dependencies {
     api project(':library')
 
     testImplementation "junit:junit:$JUNIT_VERSION"
-    testImplementation "org.mockito:mockito-core:$MOCKITO_VERSION"
-    testImplementation "org.powermock:powermock-api-mockito2:$POWERMOCK_VERSION"
-    testImplementation "org.powermock:powermock-module-junit4:$POWERMOCK_VERSION"
+    testImplementation "io.mockk:mockk:1.9.3"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
 }
