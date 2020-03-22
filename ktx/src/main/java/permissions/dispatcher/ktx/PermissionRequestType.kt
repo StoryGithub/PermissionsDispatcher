@@ -1,6 +1,5 @@
 package permissions.dispatcher.ktx
 
-import android.Manifest
 import android.content.Context
 import android.os.Build
 import android.provider.Settings
@@ -125,20 +124,6 @@ internal sealed class PermissionRequestType {
                     onNeverAskAgain = onNeverAskAgain,
                     onPermissionDenied = onPermissionDenied
                 )
-            }
-        }
-    }
-
-    companion object {
-        fun from(permissions: Array<out String>): PermissionRequestType {
-            return if (permissions.size == 1) {
-                when (permissions.first()) {
-                    Manifest.permission.SYSTEM_ALERT_WINDOW -> SystemAlertWindow
-                    Manifest.permission.WRITE_SETTINGS -> WriteSettings
-                    else -> Others
-                }
-            } else {
-                Others
             }
         }
     }
